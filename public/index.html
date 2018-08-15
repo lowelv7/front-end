@@ -4,7 +4,7 @@
 		<title>Hello AngularJS</title>
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
     	<script src="hello.js"></script>
-    	<style>
+    <style>
     label, input { display:block; }
     input.text { margin-bottom:12px; width:95%; padding: .4em; }
     fieldset { padding:0; border:0; margin-top:25px; }
@@ -14,6 +14,9 @@
     div#books-contain table td, div#books-contain table th { border: 1px solid #eee; padding: .6em 10px; text-align: left; }
     .ui-dialog .ui-state-error { padding: .3em; }
     .validateTips { border: 1px solid transparent; padding: 0.3em; }
+    .selected {
+    background-color: lightblue;
+  }
   </style>
 
   <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
@@ -72,15 +75,24 @@
 
 
       if ( valid ) {
-        $( "#books tbody" ).append( "<tr>" +
-          "<td>" + id.val() + "</td>" +
-          "<td>" + name.val() + "</td>" +
-          "<td>" + author.val() + "</td>" +
-        "</tr>" );
+  //       //delete rows with duplicate id if any
+		// var row = document.getElementById('book-row'+id.val());
+		// if(row!=null)
+  //   	row.parentNode.removeChild(row);
 
-    	angular.element(document.getElementById('dialog-form')).scope().createBook(id.val(),name.val(),author.val());
+  //       $( "#books tbody" ).append( "<tr"+" id = \"book-row"+id.val()+"\""+ ">" +
+  //         "<td>" + id.val() + "</td>" +
+  //         "<td>" + name.val() + "</td>" +
+  //         "<td>" + author.val() + "</td>" +
+  //       "</tr>" );
+
+
+    	angular.element(document.getElementById('books-contain')).scope().createBook(id.val(),name.val(),author.val());
+
+    	
 
         dialog.dialog( "close" );
+        window.location.reload();//reaload page
       }
       return valid;
     }
@@ -110,6 +122,14 @@
     $( "#create-book" ).button().on( "click", function() {
       dialog.dialog( "open" );
     });
+
+$( "#delete-book" ).button().on( "click", function() {
+	deleteId = angular.element(document.getElementById('books-contain')).scope().idSelectedBook;
+      angular.element(document.getElementById('books-contain')).scope().delete(deleteId);
+      var row = document.getElementById('book-row'+deleteId);
+    row.parentNode.removeChild(row);
+    });
+
   } );
   </script>
 	</head>
@@ -117,7 +137,7 @@
 	<body>
 
 
-<div id="dialog-form" title="Create new book" ng-controller="Create">
+<div id="dialog-form" title="Create new book">
   <p class="validateTips">All form fields are required.</p>
  
   <form>
@@ -136,7 +156,7 @@
 </div>
  
  
-<div id="books-contain" class="ui-widget" ng-controller="Search">
+<div id="books-contain" class="ui-widget" ng-controller="ListController">
   <h1>Existing Books:</h1>
   <table id="books" class="ui-widget ui-widget-content">
     <thead>
@@ -147,7 +167,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr ng-repeat="a in books">
+      <tr id = "{{'book-row'+a.id}}"ng-repeat="a in books" ng-click="setSelected(a.id)" ng-class="{selected: a.id === idSelectedBook}">
 		    <td> {{ a.id }}</td>
 		    <td> {{ a.name }}</td>
 		    <td> {{ a.author }}</td>
@@ -157,7 +177,8 @@
   </table>
 </div>
 <button id="create-book">Create new book</button>
- 
+<button id="delete-book">Delete book</button>
+
 
 
 	</body>
